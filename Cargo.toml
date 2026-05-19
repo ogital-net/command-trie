@@ -1,6 +1,6 @@
 [package]
 name = "command-trie"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 rust-version = "1.75"
 description = "A compact radix trie for command-line tab completion and longest-prefix matching."

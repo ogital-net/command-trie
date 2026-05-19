@@ -9,7 +9,7 @@ repository = "https://github.com/ogital-net/command-trie"
 documentation = "https://docs.rs/command-trie"
 readme = "README.md"
 keywords = ["trie", "radix", "completion", "cli", "prefix"]
-categories = ["data-structures", "command-line-interface"]
+categories = ["data-structures", "command-line-interface", "no-std"]
 include = [
     "src/**/*.rs",
     "examples/**/*.rs",

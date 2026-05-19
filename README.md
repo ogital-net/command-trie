@@ -4,7 +4,7 @@ A compact radix trie for command-line tab completion and longest-prefix
 matching. Designed for the build-once / query-many lifecycle of a line
 editor or REPL dispatcher.
 
-- No dependencies. `#![warn(missing_docs)]`. `Send + Sync`.
+- No dependencies. `#![no_std]` (depends only on `alloc`). `Send + Sync`.
 - Frozen trie lives in four contiguous heap allocations (nodes, label
   bytes, child-id lists, and a parallel one-byte-per-edge index for the
   lookup hot path) for cache-friendly traversal.

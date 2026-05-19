@@ -58,3 +58,18 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
       - run: cargo doc --no-deps
+
+  no_std:
+    name: Build for no_std target
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          # A bare-metal target with no `std` available. If the lib
+          # accidentally pulls in `std` (directly or via a dev-dep leaking
+          # into the lib's compilation), this build fails.
+          targets: thumbv7em-none-eabihf
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --lib --target thumbv7em-none-eabihf --verbose
+

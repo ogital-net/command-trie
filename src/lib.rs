@@ -1,9 +1,16 @@
 #![doc = include_str!("../README.md")]
+#![no_std]
 #![warn(missing_docs)]
 #![warn(missing_debug_implementations)]
 
-use std::fmt;
-use std::iter::FusedIterator;
+extern crate alloc;
+
+use alloc::boxed::Box;
+use alloc::string::String;
+use alloc::vec;
+use alloc::vec::Vec;
+use core::fmt;
+use core::iter::FusedIterator;
 
 // ============================================================
 // UTF-8 helpers
@@ -23,17 +30,17 @@ use std::iter::FusedIterator;
 /// split invariant.
 #[inline]
 unsafe fn utf8_str_unchecked(bytes: &[u8]) -> &str {
-    debug_assert!(std::str::from_utf8(bytes).is_ok());
+    debug_assert!(core::str::from_utf8(bytes).is_ok());
     // SAFETY: char-aligned splits keep every edge label valid UTF-8; the
     // concatenation of valid UTF-8 fragments is itself valid UTF-8.
-    unsafe { std::str::from_utf8_unchecked(bytes) }
+    unsafe { core::str::from_utf8_unchecked(bytes) }
 }
 
 /// # Safety
 /// Same contract as [`utf8_str_unchecked`].
 #[inline]
 unsafe fn utf8_string_unchecked(bytes: Vec<u8>) -> String {
-    debug_assert!(std::str::from_utf8(&bytes).is_ok());
+    debug_assert!(core::str::from_utf8(&bytes).is_ok());
     // SAFETY: see [`utf8_str_unchecked`].
     unsafe { String::from_utf8_unchecked(bytes) }
 }
@@ -318,9 +325,9 @@ impl<T> BuilderNode<T> {
                 }
                 // Split this edge at `common`. `common` is char-aligned by `lcp`,
                 // so both halves are valid UTF-8.
-                let old_label = std::mem::replace(&mut child.label, Box::from(&rem[..common]));
+                let old_label = core::mem::replace(&mut child.label, Box::from(&rem[..common]));
                 let old_value = child.value.take();
-                let old_children = std::mem::take(&mut child.children);
+                let old_children = core::mem::take(&mut child.children);
                 let existing = BuilderNode {
                     label: Box::from(&old_label[common..]),
                     value: old_value,
@@ -341,7 +348,7 @@ impl<T> BuilderNode<T> {
                     // the chars share a leading UTF-8 byte — in which case the
                     // tie is broken by the next byte.
                     child.children = if existing.label[..].cmp(&new_node.label[..])
-                        == std::cmp::Ordering::Less
+                        == core::cmp::Ordering::Less
                     {
                         vec![existing, new_node]
                     } else {
@@ -1181,6 +1188,8 @@ fn count_values<T>(trie: &CommandTrie<T>, node: NodeId) -> usize {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloc::format;
+    use alloc::string::ToString;
 
     /// Convenience for tests that don't care about the build step.
     fn build_from<'a, I: IntoIterator<Item = (&'a str, i32)>>(items: I) -> CommandTrie<i32> {
@@ -1672,7 +1681,7 @@ mod tests {
         const _: () = assert!(N >= 32_000, "test corpus must hit the documented ~32k cap");
 
         fn key(n: u32, buf: &mut String) {
-            use std::fmt::Write;
+            use core::fmt::Write;
             buf.clear();
             let p = (n as usize) % PREFIXES.len();
             let s = ((n as usize) / PREFIXES.len()) % STEMS.len();
@@ -1748,7 +1757,7 @@ mod tests {
 
     #[test]
     fn fuzz_against_btreemap() {
-        use std::collections::BTreeMap;
+        use alloc::collections::BTreeMap;
 
         let mut state: u64 = 0x_dead_beef_cafe_f00d;
         let mut rand = || {
@@ -1893,7 +1902,7 @@ mod tests {
 
     #[test]
     fn utf8_sort_order_matches_btreemap() {
-        use std::collections::BTreeMap;
+        use alloc::collections::BTreeMap;
         let pairs: Vec<(&str, i32)> = vec![
             ("apple", 1),
             ("café", 2),
